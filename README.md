@@ -1,44 +1,46 @@
-# FastPix Kaltura Player SDK
+## Monitor Kaltura Player (Android)
+The FastPix Data SDK with [KalturaPlayer](https://github.com/FastPix/android-data-KalturaPlayer) helps you track key video metrics like user interactions, playback quality, and performance to enhance the viewing experience. It lets you customize data tracking, monitor streaming quality, and securely send insights for better optimization and error resolution.
 
-[![License](https://img.shields.io/badge/License-Proprietary-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.0.1-green.svg)](CHANGELOG.md)
-[![Min SDK](https://img.shields.io/badge/minSdk-24-orange.svg)](theo-player-data/build.gradle.kts)
+### Key features:
+- Capture user engagement through detailed viewer interaction data.
+- Monitor playback quality with real-time performance analysis.
+- Identify and fix video delivery bottlenecks on Android.
+- Customize tracking to match specific monitoring needs.
+- Handle errors with robust reporting and diagnostics.
+- Gain deep insights into video performance with streaming diagnostics.
 
-The FastPix Kaltura Player SDK provides seamless integration between Kaltura Player and the FastPix
-analytics platform. This SDK automatically tracks video playback events, metrics, and analytics data
-from your Kaltura instances, enabling real-time monitoring and insights on the FastPix dashboard.
+### Prerequisites:
+To track and analyze video performance, initialize the SDK with your Workspace key. Learn about [Workspaces](https://docs.fastpix.io/docs/workspaces).
 
-## Key Features
+1. Access the FastPix [Dashboard](https://dashboard.fastpix.io/login?redirect=https://dashboard.fastpix.io/): Log in and navigate to the Workspaces section.
+2. Locate Your Workspace Key: Copy the Workspace Key for client-side monitoring. Include this key in your Swift code on every page where you want to track video performance.
 
-- **Automatic Event Tracking** – Automatically captures all playback events (play, pause, seek,
-  buffering, etc.)
-- **Kaltura Player Integration** – Built specifically for Kaltura Player Android SDK
-- **Real-time Analytics** – Provides instant access to video performance metrics on the FastPix
-  dashboard
-- **Minimal Setup** – Easy integration with just a few lines of code
-- **Custom Metadata** – Support for custom video and player metadata
+### Step 1: Install and setup
 
-## Requirements
+1. Open your Android Studio project where you want to integrate the SDK.
 
-- **Minimum Android SDK**: 24 (Android 7.0)
-- **Target/Compile SDK**: 35+
-- **Kaltura Player SDK**: 5.0+
-- **Kotlin**: 2.0.21+
-- **Java**: 11
+2. Add the FastPix Data SDK dependency:
 
-## Installation
+3. Navigate to your app-level `build.gradle` file (or `build.gradle.kts` if using Kotlin DSL).
 
-### Step 1: Add GitHub Packages Repository
+```groovy
+// FastPix Kaltura Player SDK
+implementation "io.fastpix.data:kaltura:1.0.0"
+   
+   //Kaltura player SDK
+   implementation("com.kaltura.player:tvplayer:5.0.3")
+   implementation("com.kaltura.playkit:playkitproviders:5.0.3")
+```
 
-Add the GitHub Packages repository to your project's `settings.gradle.kts`:
+Navigate to your `settings.gradle` file
 
-```kotlin
+```groovy
 dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
         maven {
-            url = uri("https://maven.pkg.github.com/FastPix/android-data-kaltura")
+            url = uri("https://maven.pkg.github.com/FastPix/android-data-kalturaPlayer")
             credentials {
                 username = "your-github-userName"
                 password = "your-PAT"
@@ -48,40 +50,141 @@ dependencyResolutionManagement {
 }
 ```
 
-### Step 2: Add Dependencies
+3. Sync your project with Gradle files
+   Click `Sync Now` in the notification bar to download and integrate the FastPix Data SDK.
 
-Add the FastPix Kaltura Player SDK and Kaltura Player dependencies to your app's `build.gradle.kts`:
+
+### Step 2: Import the SDK
+
+Ensure kalturaPlayer is already configured in your project.
+```kotlin
+import io.fastpix.data.domain.model.CustomDataDetails
+import io.fastpix.data.domain.model.PlayerDataDetails
+import io.fastpix.data.domain.model.VideoDataDetails
+import io.fastpix.data.kaltura_player_data.src.FastPixKalturaPlayer
+```
+
+
+### Step 3: Basic Integration
+
+Ensure that the `workSpaceId` is provided, as it is a mandatory field for FastPix integration, uniquely identifying your workspace. Install and import `FastPixKalturaPlayer` into your project, and create an `fastPixKalturaPlayer` instance to bind it to. If you are using any other custom player then create an instance of that player.
+
+Next, create an instance of `FastPixKalturaPlayer` for tracking the analytics. Once the video URL is loaded and playback has started, the SDK will begin tracking the analytics.
 
 ```kotlin
-dependencies {
-    // FastPix Kaltura Player SDK
-    implementation "io.fastpix.data:kaltura:1.0.0"
-   //Kaltura player SDK
-   implementation("com.kaltura.player:tvplayer:5.0.3")
-   implementation("com.kaltura.playkit:playkitproviders:5.0.3")
+import ...
+class MainActivity : AppCompatActivity() {
+ private var fastPixKalturaPlayer: FastPixKalturaPlayer? = null}
+```
+
+You can initialize KalturaBasicPlayer with a `kalturaPlayer` in your Android application to enable seamless functionality. Use the following Kotlin or Java code in your Android application to configure kalturaPlayer with FastPix:
+
+```kotlin
+        val videoData = VideoDataDetails(
+            videoId = "video-id",
+            videoTitle = "Sample Video",
+        )
+
+        val customData = CustomDataDetails(
+            customField1 = "custom-value-1",
+            customField2 = "custom-value-2"
+        )
+
+        val playerData = PlayerDataDetails(
+            playerName = "Kaltura Basic Player",
+            playerVersion = "5.0.3"
+        )
+        fastPixKalturaPlayer = FastPixKalturaPlayer(
+            context = this,
+            playerView = binding.playerContainer,
+            kalturaPlayer = kalturaPlayer!!,
+            workspaceId = "your-workspace-id",
+            videoDataDetails = videoData,
+            playerDataDetails = playerData,
+            customDataDetails = customData,
+            enableLogging = true
+        )
+```
+
+### Step 4: Including custom data and metadata
+- `workSpaceId` is a mandatory parameter that tells the SDK on which workspace the data will collect.
+- `playerView` is another mandatory parameter.
+
+Check out the user-passable metadata documentation to see the metadata supported by FastPix. You can use custom metadata fields like `customField1` to `customField10` for your business logic, giving you the flexibility to pass any required values. Named attributes, such as `videoId` and `videoTitle`, can be passed directly as they are.
+
+```kotlin
+     val videoData = VideoDataDetails(
+            videoId = "video-id",
+            videoTitle = "Sample Video",
+            videoSeries = "Demo Series",
+            videoProducer = "Producer Name",
+            videoContentType = "Video",
+            videoVariant = "HD",
+            videoLanguage = "en",
+            videoCDN = "cloudflare"
+        )
+
+        val customData = CustomDataDetails(
+            customField1 = "custom-value-1",
+            customField2 = "custom-value-2"
+        )
+```
+
+To set up video analytics, create a FastPixKalturaPlayer object by providing the following parameters: your application's `Context` (usually the Activity), the `KalturaPlayer` instance, and the `customerData`.
+
+```kotlin
+  fastPixKalturaPlayer = FastPixKalturaPlayer(
+            context = this,
+            playerView = binding.playerContainer,
+            kalturaPlayer = kalturaPlayer!!,
+            workspaceId = "your-workspace-id",
+            videoDataDetails = videoData,
+            playerDataDetails = playerData,
+            customDataDetails = customData,
+            enableLogging = true
+        )
+```
+
+Finally, when destroying the player, make sure to call the `fastPixKalturaPlayer?.release()` function to properly release resources.
+
+```kotlin
+override fun onDestroy() {
+    super.onDestroy()
+    fastPixKalturaPlayer?.release() // Cleanup FastPix tracking
 }
 ```
 
+After completing the integration, start playing a video in your player. A few minutes after stopping playback, you’ll see the results in your FastPix Video Data dashboard. Log in to the dashboard, navigate to the workspace associated with your ws_key, and look for video views.
 
-## Quick Start
+### CustomerData Parameters
 
-### 1. Add Framelayout to Your Layout
+The `CustomerData` class accepts the following parameters:
 
-Add the `framelayout` to your activity/fragment layout:
+| Parameter           | Type              | Required | Description                                       |
+|---------------------|-------------------|----------|---------------------------------------------------|
+| `workSpaceId`       | String            | ✅        | Your FastPix workspace identifier                 |
+| `beaconUrl`         | String            | ❌        | Custom beacon URL (default: metrix.ws)            |
+| `videoData`      | VideoDataDetails  | ❌        | Video metadata (see below)                        |
+| `playerData`        | PlayerDataDetails | ❌        | Player information |
+| `customData` | CustomDataDetails | ❌        | Custom metadata fields  |
 
-```xml
 
-<FrameLayout
-    android:id="@+id/playerContainer"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" />
 
-```
 
-### 2. Initialize FastPix SDK in Your Activity
+### What FastPix Tracks
+Once initialized, the SDK automatically collects:
+| Category          | Examples                                  |
+| ----------------- | ----------------------------------------- |
+| Playback events   | play, pause, playing, ended               |
+| Buffer events     | buffering, buffered                       |
+| Seek behavior     | seeking, seeked                           |
+| QoS metrics       | bitrate, resolution, FPS (when available) |
+| Errors            | kalturaPlayer error codes and messages       |
+| Player metadata   | fullscreen, autoplay, MIME type etc       |
 
-Here's a complete example of how to integrate FastPix SDK with Fastpix Player:
 
+### Example to configure Kaltura with FastPix Data SDK.
+Add your Stream URL in url `"your-stream-url.m3u8"` and FastPix Workspace Key in  `workspaceId`
 ```kotlin
 class MainActivity : AppCompatActivity() {
 
@@ -102,15 +205,22 @@ class MainActivity : AppCompatActivity() {
         val initOptions = PlayerInitOptions().setAutoPlay(true)
         kalturaPlayer = KalturaBasicPlayer.create(this, initOptions)
 
-        binding.playerContainer.addView(kalturaPlayer?.playerView)
+        kalturaPlayer?.setPlayerView(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
+        )
+
+        val playerView = kalturaPlayer?.getPlayerView() ?: run {
+            return
+        }
+
+        binding.playerContainer.addView(playerView)
 
         val entry = PKMediaEntry().apply {
-            id = "video-id"
             mediaType = PKMediaEntry.MediaEntryType.Vod
             sources = listOf(
                 PKMediaSource().apply {
-                    id = "video-id"
-                    url = "https://your-video-url.m3u8"
+                    url = "your-stream-url.m3u8"
                 }
             )
         }
@@ -145,7 +255,6 @@ class MainActivity : AppCompatActivity() {
             playerView = binding.playerContainer,
             kalturaPlayer = kalturaPlayer!!,
             workspaceId = "your-workspace-id",
-            beaconUrl = "metrix.ninja",
             videoDataDetails = videoData,
             playerDataDetails = playerData,
             customDataDetails = customData,
@@ -161,150 +270,34 @@ class MainActivity : AppCompatActivity() {
 }
 
 ```
-
-## Detailed Configuration
-
-### CustomerData Parameters
-
-The `CustomerData` class accepts the following parameters:
-
-| Parameter           | Type              | Required | Description                                       |
-|---------------------|-------------------|----------|---------------------------------------------------|
-| `workSpaceId`       | String            | ✅        | Your FastPix workspace identifier                 |
-| `beaconUrl`         | String            | ❌        | Custom beacon URL (default: metrix.ws)            |
-| `videoData`      | VideoDataDetails  | ❌        | Video metadata (see below)                        |
-| `playerData`        | PlayerDataDetails | ❌        | Player information (default: "theo-player", "5+") |
-| `customData` | CustomDataDetails | ❌        | Custom metadata fields  |
-
-
-### VideoDataDetails
-
-Configure video metadata for better analytics:
-
+### Debug Logging
+Enable logs using:
 ```kotlin
-val videoData = VideoDataDetails(
-    videoId = "12345",
-    videoTitle = "Sample Video",
-    videoSeries = "Series Name",
-    videoProducer = "Producer",
-    videoContentType = "TV Show",
-    videoVariant = "HD",
-    videoLanguage = "en",
-    videoCDN = "cloudflare"
-)
-
+enableLogging = true
 ```
-
-### CustomDataDetails
-
-Add custom metadata fields (up to 10 fields):
-
-```kotlin
-val customDataDetails = CustomDataDetails(
-    customField1 = "value1",
-    customField2 = "value2",
-    // ... up to customField10
-)
-```
-
-## Complete Sample Player Implementation
-
-Here's a more complete example with custom controls:
-
-```kotlin
-
-```
-
-## Lifecycle Management
-
-It's crucial to properly manage the SDK lifecycle:
-
-1. **Initialize** the SDK after Kaltura Player is configured
-2. **Always call `release()`** in `onDestroy()` to clean up resources
-
-```kotlin
-override fun onDestroy() {
-    fastPixKalturaPlayer?.release()
-    kalturaPlayer?.destroy()
-    super.onDestroy()
-}
-```
-
-## Switching Videos
-
-When switching to a new video, release and reinitialize:
-
-```kotlin
-fun switchVideo(newVideo: DummyData) {
-    fastPixKalturaPlayer?.release()
-
-    val entry = PKMediaEntry().apply {
-        id = newVideo.id
-        mediaType = PKMediaEntry.MediaEntryType.Vod
-        sources = listOf(PKMediaSource().apply {
-            id = newVideo.id
-            url = newVideo.url
-        })
-    }
-
-    kalturaPlayer?.setMedia(entry)
-
-    setupFastPixSDK()
-}
-
-```
-
-## Debugging
-
-Enable logging during development:
-
-```kotlin
-     fastPixKalturaPlayer = FastPixKalturaPlayer(
-            context = this,
-            playerView = binding.playerContainer,
-            kalturaPlayer = kalturaPlayer!!,
-            workspaceId = "your-workspace-id",
-            beaconUrl = "metrix.ninja",
-            videoDataDetails = videoData,
-            playerDataDetails = playerData,
-            customDataDetails = customData,
-            enableLogging = true // set to false in production
-        )
-```
-
-Logs will appear in Logcat with the tag `FastPixKalturaPlayer`.
 
 ## Troubleshooting
 
-### SDK Not Tracking Events
+#### SDK Not Tracking Events
 
 - Ensure you've initialized the SDK after configuring Kaltura Player
 - Check that `workSpaceId` is correct
 - Verify Kaltura Player events are firing (check Kaltura Player logs)
 - Enable logging to see FastPix SDK activity
 
-### Memory Leaks
+#### Memory Leaks
 
 - Always call `release()` in `onDestroy()`
-- Ensure `  kalturaPlayer?.destroy()` is called before releasing FastPix SDK
+- Ensure ` kalturaPlayer?.destroy()` is called before releasing FastPix SDK
 
-### Missing Events
+#### Missing Events
 
 - The SDK automatically tracks all events from Kaltura Player
 - Events are tracked based on Kaltura Player native event system
 - Check that Kaltura player is properly configured and receiving events
 
-## Support
 
-For questions, issues, or feature requests:
 
-- **Email**: support@fastpix.io
-- **Documentation**: [FastPix Documentation](https://docs.fastpix.io)
-- **GitHub Issues**: [Report an issue](https://github.com/FastPix/android-data-theoplayer/issues)
-
-## License
-
-Copyright © 2025 FastPix. All rights reserved.
-
-This SDK is proprietary software. Unauthorized copying, modification, distribution, or use of this
-software is strictly prohibited.
+### Support
+📩 Email: support@fastpix.io
+📚 Docs: https://docs.fastpix.io
