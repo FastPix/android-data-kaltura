@@ -38,7 +38,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven {
-            url = uri("https://maven.pkg.github.com/FastPix/android-data-theoplayer")
+            url = uri("https://maven.pkg.github.com/FastPix/android-data-kaltura")
             credentials {
                 username = "your-github-userName"
                 password = "your-PAT"
@@ -55,8 +55,7 @@ Add the FastPix Kaltura Player SDK and Kaltura Player dependencies to your app's
 ```kotlin
 dependencies {
     // FastPix Kaltura Player SDK
-    implementation("io.fastpix.data:theo:0.0.2")
-   
+    implementation "io.fastpix.data:kaltura:1.0.0"
    //Kaltura player SDK
    implementation("com.kaltura.player:tvplayer:5.0.3")
    implementation("com.kaltura.playkit:playkitproviders:5.0.3")
