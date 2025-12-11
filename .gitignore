@@ -1,0 +1,73 @@
+# Built application files
+*.apk
+*.aab
+*.ap_
+*.aar
+
+# Gradle files
+.gradle/
+build/
+**/build/
+
+
+# Local configuration file (sdk path, keystore passwords, etc)
+local.properties
+
+# Proguard
+proguard/
+proguard-rules.pro
+
+# Log Files
+*.log
+
+# Android Studio Navigation Editor temp files
+.navigation/
+
+# IntelliJ / Android Studio files
+.idea/
+*.iml
+# Cache
+.cxx/
+
+# Keystore files (don't ever commit your keystore)
+*.jks
+*.keystore
+
+# Google Services (if using Firebase)
+google-services.json
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+
+# NDK
+obj/
+
+# Mac OS files
+.DS_Store
+
+# Kotlin build
+out/
+
+# Gradle Wrapper
+!gradle-wrapper.jar
+
+# Jetifier
+.idea/caches/build_file_checksums.ser
+
+# Temporary files
+*.tmp
+*.temp
+*.orig
+
+# Generated sources
+generated/
+
+# Lint
+lint/generated/
+lint/intermediates/
+lint/outputs/
+
+# Signed builds
+*.idsig

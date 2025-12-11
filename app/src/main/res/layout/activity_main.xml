@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/black">
+
+        <FrameLayout
+            android:id="@+id/player_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:keepScreenOn="true"/>
+
+        <LinearLayout
+            android:id="@+id/bottom_controls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="#80000000">
+
+            <SeekBar
+                android:id="@+id/seek_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/current_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/total_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Center Controls -->
+        <LinearLayout
+            android:id="@+id/center_controls"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:visibility="visible">
+
+            <!-- Backward 10 seconds -->
+            <ImageButton
+                android:id="@+id/rewind_button"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:src="@android:drawable/ic_media_rew"
+                android:background="@android:color/transparent"
+                android:contentDescription="Rewind 10 seconds"
+                android:layout_marginEnd="20dp"
+                android:scaleType="fitCenter"
+                app:tint="@android:color/white" />
+
+            <!-- Play/Pause -->
+            <ImageButton
+                android:id="@+id/play_pause_button"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@android:drawable/ic_media_play"
+                android:background="@android:color/transparent"
+                android:contentDescription="Play/Pause"
+                android:scaleType="fitCenter"
+                app:tint="@android:color/white" />
+
+            <!-- Forward 10 seconds -->
+            <ImageButton
+                android:id="@+id/forward_button"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:src="@android:drawable/ic_media_ff"
+                android:background="@android:color/transparent"
+                android:contentDescription="Forward 10 seconds"
+                android:layout_marginStart="20dp"
+                android:scaleType="fitCenter"
+                app:tint="@android:color/white" />
+
+        </LinearLayout>
+
+        <!-- Fullscreen Button - Bottom Left, Above Seekbar -->
+        <ImageButton
+            android:id="@+id/fullscreen_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/enter_fullscreen"
+            android:contentDescription="Fullscreen"
+            android:layout_above="@id/bottom_controls"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="8dp"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            app:tint="@android:color/white" />
+
+        <!-- Exit Fullscreen Button - Bottom Left, Above Seekbar (same position) -->
+        <ImageButton
+            android:id="@+id/exitFullScreen_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/exit_fullscreen"
+            android:contentDescription="Exit Fullscreen"
+            android:layout_above="@id/bottom_controls"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="8dp"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            android:visibility="gone"
+            app:tint="@android:color/white" />
+
+        <!-- Next button - Bottom Right Corner (ABOVE bottom controls) -->
+        <ImageButton
+            android:id="@+id/next_button"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="100dp"
+            android:src="@android:drawable/ic_media_next"
+            android:background="#CC000000"
+            android:contentDescription="Next video"
+            android:scaleType="centerInside"
+            android:padding="16dp"
+            android:elevation="8dp"
+            android:visibility="visible"
+            app:tint="@android:color/white" />
+
+    </RelativeLayout>
+</layout>
