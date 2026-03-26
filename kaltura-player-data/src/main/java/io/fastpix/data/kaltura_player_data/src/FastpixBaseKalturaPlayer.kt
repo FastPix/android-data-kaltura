@@ -9,6 +9,7 @@ import com.kaltura.androidx.media3.common.util.UnstableApi
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.playkit.PlayerState
 import com.kaltura.tvplayer.KalturaBasicPlayer
+import io.fastpix.data.FastPixAnalytics
 import io.fastpix.data.FastPixDataSDK
 import io.fastpix.data.domain.SDKConfiguration
 import io.fastpix.data.domain.enums.PlayerEventType
@@ -19,8 +20,10 @@ import io.fastpix.data.domain.model.ErrorModel
 import io.fastpix.data.domain.model.PlayerDataDetails
 import io.fastpix.data.domain.model.VideoDataDetails
 import io.fastpix.data.kaltura_player_data.src.info.FastPixKalturaLibraryInfo
+import io.fastpix.data.utils.Logger
 import kotlinx.coroutines.*
 import java.io.IOException
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * FastPix Kaltura Player wrapper that automatically integrates with FastPixDataSDK
@@ -40,7 +43,7 @@ class FastPixKalturaPlayer(
 ) : PlayerListener {
 
     private val TAG = "FastPixKalturaPlayer"
-    private lateinit var fastPixDataSDK: FastPixDataSDK
+    private var fastPixDataSDK: FastPixDataSDK? = null
 
     // State machine for valid event transitions
     private var currentEventState: KalturaPlayerEvent? = null
@@ -69,6 +72,11 @@ class FastPixKalturaPlayer(
     private var errorMessage: String? = null
     private var errorCode: String? = null
 
+    private val PULSE_INTERVAL = 10_000L // 1 second
+    private val isPulseScheduled = AtomicBoolean(false)
+    private val dispatcherScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private var pulseJob: Job? = null
+
     init {
         initializeFastPixSDK()
         setupPlayerListeners()
@@ -76,22 +84,19 @@ class FastPixKalturaPlayer(
     }
 
     private fun initializeFastPixSDK() {
-        fastPixDataSDK = FastPixDataSDK()
-        kalturaPlayer.isPreload
         val config = SDKConfiguration(
             workspaceId = workspaceId,
             beaconUrl = beaconUrl,
             playerData = playerDataDetails ?: PlayerDataDetails(
-                playerName = "kaltura_basic_player",
-                playerVersion = "5.0.3"
+                playerName = "kaltura_basic_player", playerVersion = "5.0.3"
             ),
             videoData = videoDataDetails,
             playerListener = this,
             enableLogging = enableLogging,
             customData = customDataDetails
         )
-
-        fastPixDataSDK.initialize(config, context)
+        FastPixAnalytics.initialize(config, context)
+        fastPixDataSDK = FastPixAnalytics.getSDK()
 
         if (enableLogging) {
             Log.d(TAG, "FastPix SDK initialized")
@@ -203,6 +208,7 @@ class FastPixKalturaPlayer(
             dispatchErrorEvent()
         }
     }
+
     private fun startProgressTracking() {
         progressJob = CoroutineScope(Dispatchers.Main).launch {
             while (isActive) {
@@ -221,6 +227,7 @@ class FastPixKalturaPlayer(
             }
         }
     }
+
     private fun isValidTransition(newEvent: KalturaPlayerEvent): Boolean {
         val allowedTransitions = validTransitions[currentEventState] ?: emptySet()
         return newEvent in allowedTransitions
@@ -242,138 +249,143 @@ class FastPixKalturaPlayer(
     }
 
     private fun dispatchViewBegin() {
-        if (isReleased || !::fastPixDataSDK.isInitialized) return
+        if (isReleased || fastPixDataSDK == null) return
         if (!isViewBeginSent) {
             if (enableLogging) {
                 Log.i(TAG, "✓ VIEW BEGIN")
             }
-            fastPixDataSDK.dispatchEvent(PlayerEventType.viewBegin)
+            cancelPulseEvent()
+            fastPixDataSDK?.dispatchEvent(PlayerEventType.viewBegin)
             isViewBeginSent = true
         }
     }
 
     private fun dispatchPlayerReadyEvent() {
-        if (isReleased || !::fastPixDataSDK.isInitialized) return
+        if (isReleased || fastPixDataSDK == null) return
         if (enableLogging) {
             Log.i(TAG, "✓ PLAYER READY")
         }
-        fastPixDataSDK.dispatchEvent(PlayerEventType.playerReady)
+        cancelPulseEvent()
+        fastPixDataSDK?.dispatchEvent(PlayerEventType.playerReady)
     }
 
     private fun dispatchPlayEvent() {
-        if (isReleased || !::fastPixDataSDK.isInitialized) return
+        if (isReleased || fastPixDataSDK == null) return
 
         if (currentEventState == null || transitionToEvent(KalturaPlayerEvent.PLAY)) {
             currentEventState = KalturaPlayerEvent.PLAY
-            fastPixDataSDK.dispatchEvent(PlayerEventType.play)
+            cancelPulseEvent()
+            fastPixDataSDK?.dispatchEvent(PlayerEventType.play)
             processQueuedVariantChangeEvents()
         }
     }
+
     private fun dispatchPlayingEvent() {
-        if (isReleased || !::fastPixDataSDK.isInitialized) return
+        if (isReleased || fastPixDataSDK == null) return
         if (transitionToEvent(KalturaPlayerEvent.PLAYING)) {
             if (enableLogging) {
                 Log.i(TAG, " fastpix PLAYING")
             }
-            fastPixDataSDK.dispatchEvent(PlayerEventType.playing)
+            schedulePulseEvents()
+            fastPixDataSDK?.dispatchEvent(PlayerEventType.playing)
         }
     }
+
     private fun dispatchPauseEvent() {
-        if (isReleased || !::fastPixDataSDK.isInitialized) return
+        if (isReleased || fastPixDataSDK == null) return
         if (transitionToEvent(KalturaPlayerEvent.PAUSE)) {
             if (enableLogging) {
                 Log.i(TAG, "PAUSED")
             }
-            fastPixDataSDK.dispatchEvent(PlayerEventType.pause)
+            cancelPulseEvent()
+            fastPixDataSDK?.dispatchEvent(PlayerEventType.pause)
         }
     }
+
     private fun dispatchSeekingEvent() {
-        if (isReleased || !::fastPixDataSDK.isInitialized) return
+        if (isReleased || fastPixDataSDK == null) return
         if (transitionToEvent(KalturaPlayerEvent.SEEKING)) {
             if (enableLogging) {
                 Log.i(TAG, "SEEKING")
             }
             isSeeking = true
-            fastPixDataSDK.dispatchEvent(PlayerEventType.seeking)
+            cancelPulseEvent()
+            fastPixDataSDK?.dispatchEvent(PlayerEventType.seeking)
         }
     }
 
     private fun dispatchSeekedEvent() {
-        if (isReleased || !::fastPixDataSDK.isInitialized) return
+        if (isReleased || fastPixDataSDK == null) return
         if (transitionToEvent(KalturaPlayerEvent.SEEKED)) {
             if (enableLogging) {
                 Log.i(TAG, "SEEKED")
             }
             isSeeking = false
-            fastPixDataSDK.dispatchEvent(PlayerEventType.seeked)
+            cancelPulseEvent()
+            fastPixDataSDK?.dispatchEvent(PlayerEventType.seeked)
         }
     }
 
     private fun dispatchBufferingEvent() {
-        if (isReleased || !::fastPixDataSDK.isInitialized) return
+        if (isReleased || fastPixDataSDK == null) return
         if (transitionToEvent(KalturaPlayerEvent.BUFFERING)) {
             if (enableLogging) {
                 Log.i(TAG, "⏳ BUFFERING")
             }
-            fastPixDataSDK.dispatchEvent(PlayerEventType.buffering)
+            cancelPulseEvent()
+            fastPixDataSDK?.dispatchEvent(PlayerEventType.buffering)
         }
     }
 
     private fun dispatchBufferedEvent() {
-        if (isReleased || !::fastPixDataSDK.isInitialized) return
+        if (isReleased || fastPixDataSDK == null) return
         if (transitionToEvent(KalturaPlayerEvent.BUFFERED)) {
             if (enableLogging) {
                 Log.i(TAG, "✓ BUFFERED")
             }
-            fastPixDataSDK.dispatchEvent(PlayerEventType.buffered)
+            cancelPulseEvent()
+            fastPixDataSDK?.dispatchEvent(PlayerEventType.buffered)
         }
     }
 
     private fun dispatchEndedEvent() {
-        if (isReleased || !::fastPixDataSDK.isInitialized) return
+        if (isReleased || fastPixDataSDK == null) return
         if (transitionToEvent(KalturaPlayerEvent.ENDED)) {
             if (enableLogging) {
                 Log.i(TAG, "ENDED")
             }
-
-
             try {
                 lastKnownPosition = kalturaPlayer.currentPosition
                 lastKnownDuration = kalturaPlayer.duration
             } catch (e: IOException) {
-
+                e.printStackTrace()
             }
-
-
-            fastPixDataSDK.dispatchEvent(PlayerEventType.ended)
-            fastPixDataSDK.dispatchEvent(
-                PlayerEventType.viewCompleted,
-                useLastKnownPosition?.toInt()
-            )
+            cancelPulseEvent()
+            fastPixDataSDK?.dispatchEvent(PlayerEventType.ended)
         }
     }
 
 
     private fun dispatchErrorEvent() {
-        if (isReleased || !::fastPixDataSDK.isInitialized) return
+        if (isReleased || fastPixDataSDK == null) return
         if (transitionToEvent(KalturaPlayerEvent.ERROR)) {
             if (enableLogging) {
                 Log.e(TAG, "ERROR")
             }
-            fastPixDataSDK.dispatchEvent(PlayerEventType.error)
+            cancelPulseEvent()
+            fastPixDataSDK?.dispatchEvent(PlayerEventType.error)
         }
     }
 
     private fun dispatchVariantChangeEvent() {
-        if (isReleased || !::fastPixDataSDK.isInitialized) return
+        if (isReleased || fastPixDataSDK == null) return
         if (currentVideoWidth == null || currentVideoHeight == null) {
             return
         }
 
         if (transitionToEvent(KalturaPlayerEvent.VARIANT_CHANGED)) {
-            if (enableLogging) {
-            }
-            fastPixDataSDK.dispatchEvent(PlayerEventType.variantChanged)
+            schedulePulseEvents()
+            fastPixDataSDK?.dispatchEvent(PlayerEventType.variantChanged)
         } else {
             pendingVariantChangeEvents.add(true)
         }
@@ -408,13 +420,13 @@ class FastPixKalturaPlayer(
 
     override fun mimeType(): String? = "application/x-mpegURL"
 
-    override fun sourceFps(): String? = null
+    override fun sourceFps(): Int? = null
 
     override fun sourceAdvertisedBitrate(): String? = currentBitRate
 
-    override fun sourceAdvertiseFrameRate(): String? = null
+    override fun sourceAdvertiseFrameRate(): Int? = null
 
-    override fun sourceDuration(): Int?= sourceDuration?.toInt()
+    override fun sourceDuration(): Int? = sourceDuration?.toInt()
 
     override fun isPause(): Boolean? = !kalturaPlayer.isPlaying
 
@@ -460,49 +472,41 @@ class FastPixKalturaPlayer(
      * Call this when you're done with the player
      */
     fun release() {
-        if (enableLogging) {
-            Log.d(TAG, "Releasing FastPix Kaltura Player")
-        }
-
         try {
+            cancelPulseEvent()
             lastKnownPosition = kalturaPlayer.currentPosition
             lastKnownDuration = kalturaPlayer.duration
-
-        } catch (e: IOException) {
-            if (enableLogging) {
-                Log.w(TAG, "Could not capture final position: ${e.message}")
-            }
+            isReleased = true
+            progressJob?.cancel()
+            currentEventState = null
+            pendingVariantChangeEvents.clear()
+        } catch (ex: Exception) {
+            ex.printStackTrace()
         }
-
-        if (::fastPixDataSDK.isInitialized) {
-            try {
-
-            } catch (e: IOException) {
-                if (enableLogging) {
-                    Log.w(TAG, "Error dispatching viewCompleted: ${e.message}")
-                }
-            }
-        }
-
-        Thread.sleep(100)
-
-        isReleased = true
-
-        progressJob?.cancel()
-
-        if (::fastPixDataSDK.isInitialized) {
-            try {
-                fastPixDataSDK.release(useLastKnownPosition?.toInt())
-            } catch (e: IOException) {
-                if (enableLogging) {
-                    Log.e(TAG, "Error releasing SDK: ${e.message}")
-                }
-            }
-        }
-
-        currentEventState = null
-        pendingVariantChangeEvents.clear()
+        FastPixAnalytics.release(useLastKnownPosition?.toInt())
     }
 
+    private fun schedulePulseEvents() {
+        if (isPulseScheduled.get()) return
 
+        isPulseScheduled.set(true)
+        pulseJob = dispatcherScope.launch {
+            while (isPulseScheduled.get()) {
+                delay(PULSE_INTERVAL)
+                if (isPulseScheduled.get()) {
+                    withContext(Dispatchers.Main) {
+                        fastPixDataSDK?.dispatchEvent(PlayerEventType.pulse)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun cancelPulseEvent() {
+        if (isPulseScheduled.get()) {
+            Logger.log("EventDispatcher", "Cancelling pulse events")
+            isPulseScheduled.set(false)
+            pulseJob?.cancel()
+        }
+    }
 }

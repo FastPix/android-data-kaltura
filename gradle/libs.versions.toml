@@ -17,7 +17,7 @@ kotlinxSerializationJson = "1.7.3"
 tvplayer = "5.0.3"
 workRuntimeKtx = "2.11.0"
 media3Exoplayer = "1.8.0"
-core = "1.2.5"
+core = "1.2.7"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }

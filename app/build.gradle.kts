@@ -52,8 +52,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation("com.kaltura.player:tvplayer:5.0.3")
-    implementation("com.kaltura.playkit:playkitproviders:5.0.3")
-    implementation("com.mux.stats.sdk.muxstats:MuxKalturaSDK:0.2.0")
 
 }

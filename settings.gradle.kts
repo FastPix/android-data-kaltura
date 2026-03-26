@@ -17,9 +17,6 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven {
-            url = uri("https://muxinc.jfrog.io/artifactory/default-maven-release-local")
-        }
-        maven {
             url = uri("https://maven.pkg.github.com/FastPix/android-core-data-sdk")
             credentials {
                 val props = java.util.Properties()

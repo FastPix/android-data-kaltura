@@ -24,13 +24,6 @@ import com.kaltura.playkit.PKMediaSource
 import com.kaltura.playkit.PlayerEvent
 import com.kaltura.tvplayer.KalturaBasicPlayer
 import com.kaltura.tvplayer.PlayerInitOptions
-import com.mux.stats.sdk.core.CustomOptions
-import com.mux.stats.sdk.core.model.CustomerData
-import com.mux.stats.sdk.core.model.CustomerPlayerData
-import com.mux.stats.sdk.core.model.CustomerVideoData
-import com.mux.stats.sdk.core.model.CustomerViewData
-import com.mux.stats.sdk.muxkalturasdk.MuxNetworkRequests
-import com.mux.stats.sdk.muxkalturasdk.MuxStatsKaltura
 import io.fastpix.data.domain.model.CustomDataDetails
 import io.fastpix.data.domain.model.PlayerDataDetails
 import io.fastpix.data.domain.model.VideoDataDetails
@@ -53,7 +46,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var kalturaPlayer: KalturaBasicPlayer? = null
     private var fastPixKalturaPlayer: FastPixKalturaPlayer? = null
-    private var muxStats: MuxStatsKaltura? = null
 
     private lateinit var playPauseButton: ImageButton
     private lateinit var rewindButton: ImageButton
@@ -167,7 +159,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun initializeAnalyticsSDKs() {
         initializeFastPixSDK()
-        initializeMuxStats()
     }
 
     private fun initializeFastPixSDK() {
@@ -208,60 +199,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initializeMuxStats() {
-        kalturaPlayer?.let { kalturaPlayer ->
-            Log.d(TAG, "Initializing Mux Stats")
-
-            val customerPlayerData = CustomerPlayerData().apply {
-                environmentKey = "ed3jqid7i1vfokb2je395btqv"
-                playerName = "Kaltura Basic Player"
-                playerVersion = "5.0.3"
-            }
-
-            val customerVideoData = CustomerVideoData().apply {
-                videoTitle = currentVideo?.id ?: "Unknown Video"
-                videoId = currentVideo?.id
-                videoSeries = "Kaltura Video Series"
-                videoDuration = null
-                videoStreamType = "on-demand"
-                videoEncodingVariant = "HLS"
-                videoSourceUrl= currentVideo?.url
-
-            }
-
-            val customerViewData = CustomerViewData().apply {
-                viewSessionId = UUID.randomUUID().toString()
-            }
-
-            val customerData = CustomerData(
-                customerPlayerData,
-                customerVideoData,
-                customerViewData
-            )
-
-            val network = MuxNetworkRequests()
-            val customOptions = CustomOptions().apply {
-                setSentryEnabled(false)
-            }
-
-            muxStats = MuxStatsKaltura(
-                this,
-                kalturaPlayer,
-                "kaltura-basic-player",
-                customerData,
-                customOptions,
-                network
-            )
-
-            val size = Point()
-            windowManager.defaultDisplay.getSize(size)
-            muxStats?.setScreenSize(size.x, size.y)
-            muxStats?.enableMuxCoreDebug(true, false)
-
-            Log.d(TAG, "✓ Mux Stats initialized for video: ${currentVideo?.id}")
-        }
-    }
-
 private fun playNextVideo() {
     Log.d(TAG, "playNextVideo() called")
 
@@ -275,7 +212,6 @@ private fun playNextVideo() {
                 releaseFastPixSDK()
                 loadVideo(currentVideo)
                 initializeFastPixSDK()
-                updateMuxStats()
                 updateNextButton()
 
         } else {
@@ -292,22 +228,6 @@ private fun playNextVideo() {
             Log.d(TAG, "✓ FastPix SDK released")
         } catch (e: Exception) {
             Log.e(TAG, "Error releasing FastPix SDK: ${e.message}")
-        }
-    }
-
-    private fun updateMuxStats() {
-        currentVideo?.let { video ->
-            val muxVideoData = CustomerVideoData().apply {
-                videoTitle = video.id
-                videoId = video.id
-                videoSeries = "Kaltura Video Series"
-                videoDuration = null
-                videoStreamType = "on-demand"
-                videoEncodingVariant = "HLS"
-                videoCdn = "fastpix"
-            }
-            muxStats?.videoChange(muxVideoData)
-            Log.d(TAG, "✓ Mux videoChange called for: ${video.id}")
         }
     }
 
@@ -509,7 +429,6 @@ private fun playNextVideo() {
         kalturaPlayer?.destroy()
         kalturaPlayer = null
         fastPixKalturaPlayer?.release()
-        muxStats?.release()
     }
 }
 
