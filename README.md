@@ -25,11 +25,7 @@ To track and analyze video performance, initialize the SDK with your Workspace k
 
 ```groovy
 // FastPix Kaltura Player SDK
-implementation "io.fastpix.data:kaltura:1.0.0"
-   
-   //Kaltura player SDK
-   implementation("com.kaltura.player:tvplayer:5.0.3")
-   implementation("com.kaltura.playkit:playkitproviders:5.0.3")
+implementation "io.fastpix.data:kaltura:1.0.1"
 ```
 
 Navigate to your `settings.gradle` file
