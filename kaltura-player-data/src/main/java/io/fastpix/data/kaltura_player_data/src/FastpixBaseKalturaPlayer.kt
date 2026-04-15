@@ -254,7 +254,7 @@ class FastPixKalturaPlayer(
             if (enableLogging) {
                 Log.i(TAG, "✓ VIEW BEGIN")
             }
-            cancelPulseEvent()
+            schedulePulseEvents()
             fastPixDataSDK?.dispatchEvent(PlayerEventType.viewBegin)
             isViewBeginSent = true
         }
@@ -265,7 +265,6 @@ class FastPixKalturaPlayer(
         if (enableLogging) {
             Log.i(TAG, "✓ PLAYER READY")
         }
-        cancelPulseEvent()
         fastPixDataSDK?.dispatchEvent(PlayerEventType.playerReady)
     }
 
@@ -274,7 +273,7 @@ class FastPixKalturaPlayer(
 
         if (currentEventState == null || transitionToEvent(KalturaPlayerEvent.PLAY)) {
             currentEventState = KalturaPlayerEvent.PLAY
-            cancelPulseEvent()
+            schedulePulseEvents()
             fastPixDataSDK?.dispatchEvent(PlayerEventType.play)
             processQueuedVariantChangeEvents()
         }
@@ -309,7 +308,6 @@ class FastPixKalturaPlayer(
                 Log.i(TAG, "SEEKING")
             }
             isSeeking = true
-            cancelPulseEvent()
             fastPixDataSDK?.dispatchEvent(PlayerEventType.seeking)
         }
     }
@@ -321,7 +319,11 @@ class FastPixKalturaPlayer(
                 Log.i(TAG, "SEEKED")
             }
             isSeeking = false
-            cancelPulseEvent()
+            if(kalturaPlayer.isPlaying == false){
+                cancelPulseEvent()
+            } else {
+             schedulePulseEvents()
+            }
             fastPixDataSDK?.dispatchEvent(PlayerEventType.seeked)
         }
     }
@@ -332,7 +334,7 @@ class FastPixKalturaPlayer(
             if (enableLogging) {
                 Log.i(TAG, "⏳ BUFFERING")
             }
-            cancelPulseEvent()
+            schedulePulseEvents()
             fastPixDataSDK?.dispatchEvent(PlayerEventType.buffering)
         }
     }
@@ -343,7 +345,6 @@ class FastPixKalturaPlayer(
             if (enableLogging) {
                 Log.i(TAG, "✓ BUFFERED")
             }
-            cancelPulseEvent()
             fastPixDataSDK?.dispatchEvent(PlayerEventType.buffered)
         }
     }
@@ -384,7 +385,6 @@ class FastPixKalturaPlayer(
         }
 
         if (transitionToEvent(KalturaPlayerEvent.VARIANT_CHANGED)) {
-            schedulePulseEvents()
             fastPixDataSDK?.dispatchEvent(PlayerEventType.variantChanged)
         } else {
             pendingVariantChangeEvents.add(true)
@@ -483,7 +483,10 @@ class FastPixKalturaPlayer(
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
-        FastPixAnalytics.release(useLastKnownPosition?.toInt())
+        if(fastPixDataSDK!=null) {
+            FastPixAnalytics.release(useLastKnownPosition?.toInt())
+        }
+
     }
 
     private fun schedulePulseEvents() {

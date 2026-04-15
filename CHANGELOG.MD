@@ -1,3 +1,14 @@
+# v1.0.2
+## Changed
+- **SDK & Dependencies**
+    - Updated `androidx.core:core-ktx` (`core`) from `1.2.7` to `1.2.9`.
+    - Updated `README.md` dependency example to `1.0.2`.
+- **FastPixKalturaPlayer Event Handling**
+    - Adjusted pulse lifecycle to schedule periodic pulse events on `viewBegin`, `play`, and `buffering` transitions.
+    - Improved seek handling so pulse events are cancelled only when playback remains paused after `seeked`, and resumed when playback continues.
+    - Removed unnecessary pulse scheduling from `variantChanged` dispatch to avoid duplicate pulse triggers.
+- **Stability**
+    - Guarded `FastPixAnalytics.release(...)` with a null-check on `fastPixDataSDK` to avoid releasing analytics when SDK is not initialized.
 
 # v1.0.1
 ## Changed
