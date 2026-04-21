@@ -1,3 +1,7 @@
+
+# v1.0.3
+- Upgrades Core SDK to 1.3.0
+
 # v1.0.2
 ## Changed
 - **SDK & Dependencies**
