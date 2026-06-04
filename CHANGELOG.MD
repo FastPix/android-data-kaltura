@@ -1,4 +1,14 @@
 
+# v1.0.4
+## Changes
+- **SDK & Dependencies**
+  - Bumped `SDK_VERSION` to `1.0.4` in `FastPixKalturaLibraryInfo.kt`.
+  - Updated publication version to `1.0.4` in `build.gradle.kts`.
+  - Updated `core` library dependency to version `1.3.1` in `libs.versions.toml`.
+- **Documentation**
+  - Updated version reference to `1.0.4` in `README.md`.
+  - Added entry for `v1.0.4` in `CHANGELOG.MD`.
+
 # v1.0.3
 - Upgrades Core SDK to 1.3.0
 

@@ -58,7 +58,7 @@ publishing {
         create<MavenPublication>("bar") {
             groupId = "io.fastpix.data"
             artifactId = "kaltura"
-            version = "1.0.3"
+            version = "1.0.4"
             artifact("${buildDir}/outputs/aar/kaltura-player-data-release.aar")
 
             pom.withXml {
