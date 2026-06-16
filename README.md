@@ -295,5 +295,4 @@ enableLogging = true
 
 
 ### Support
-📩 Email: support@fastpix.io
-📚 Docs: https://docs.fastpix.io
+📚 Docs: https://docs.fastpix.com
