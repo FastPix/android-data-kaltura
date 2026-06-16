@@ -10,9 +10,9 @@ The FastPix Data SDK with [KalturaPlayer](https://github.com/FastPix/android-dat
 - Gain deep insights into video performance with streaming diagnostics.
 
 ### Prerequisites:
-To track and analyze video performance, initialize the SDK with your Workspace key. Learn about [Workspaces](https://docs.fastpix.io/docs/workspaces).
+To track and analyze video performance, initialize the SDK with your Workspace key. Learn about [Workspaces](https://fastpix.com/docs/getting-started/set-up-a-workspace).
 
-1. Access the FastPix [Dashboard](https://dashboard.fastpix.io/login?redirect=https://dashboard.fastpix.io/): Log in and navigate to the Workspaces section.
+1. Access the FastPix [Dashboard](https://dashboard.fastpix.com): Log in and navigate to the Workspaces section.
 2. Locate Your Workspace Key: Copy the Workspace Key for client-side monitoring. Include this key in your Swift code on every page where you want to track video performance.
 
 ### Step 1: Install and setup
@@ -295,4 +295,5 @@ enableLogging = true
 
 
 ### Support
-📚 Docs: https://docs.fastpix.com
+📩 Email: support@fastpix.com 
+📚 Docs: https://fastpix.com/docs
