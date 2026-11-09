@@ -1,34 +1,80 @@
-## Monitor Kaltura Player (Android)
-The FastPix Data SDK with [KalturaPlayer](https://github.com/FastPix/android-data-KalturaPlayer) helps you track key video metrics like user interactions, playback quality, and performance to enhance the viewing experience. It lets you customize data tracking, monitor streaming quality, and securely send insights for better optimization and error resolution.
+# FastPix Video Data SDK for Kaltura Player - monitor playback performance and QoE on Android
 
-### Key features:
-- Capture user engagement through detailed viewer interaction data.
-- Monitor playback quality with real-time performance analysis.
-- Identify and fix video delivery bottlenecks on Android.
-- Customize tracking to match specific monitoring needs.
-- Handle errors with robust reporting and diagnostics.
-- Gain deep insights into video performance with streaming diagnostics.
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Android-brightgreen.svg)](https://developer.android.com)
+[![Language](https://img.shields.io/badge/language-Kotlin-7F52FF.svg)](https://kotlinlang.org)
 
-### Prerequisites:
-To track and analyze video performance, initialize the SDK with your Workspace key. Learn about [Workspaces](https://fastpix.com/docs/getting-started/set-up-a-workspace).
+The **FastPix Video Data SDK for Kaltura Player** is a third-party analytics SDK that monitors playback performance, events, and quality-of-experience (QoE) metrics in **Kaltura Player on Android**. It attaches to your `KalturaPlayer` instance, automatically tracks playback events, and reports real-time metrics - startup time, rebuffering, bitrate, drop-offs, and errors - to the [FastPix dashboard](https://dashboard.fastpix.com).
 
-1. Access the FastPix [Dashboard](https://dashboard.fastpix.com): Log in and navigate to the Workspaces section.
-2. Locate Your Workspace Key: Copy the Workspace Key for client-side monitoring. Include this key in your Swift code on every page where you want to track video performance.
+It is **not a video player** and does not replace Kaltura Player. It is a third-party data SDK you add alongside the Kaltura Player you already ship - the same role Mux Data plays - so you can track quality of experience and viewer engagement without building an analytics pipeline.
 
-### Step 1: Install and setup
+**Works with:** Kaltura Player Android SDK (PlayKit) 5.0+ · Android 7.0+ · Kotlin and Java · `io.fastpix.data:kaltura`
 
-1. Open your Android Studio project where you want to integrate the SDK.
+[Monitor Kaltura Player docs](https://fastpix.com/docs/video-data/monitors/kaltura-player) · [Create a free account](https://dashboard.fastpix.com/signup?utm_source=github&utm_medium=referral&utm_campaign=github_signup)
 
-2. Add the FastPix Data SDK dependency:
+## Jump to
 
-3. Navigate to your app-level `build.gradle` file (or `build.gradle.kts` if using Kotlin DSL).
+Skip straight to a section without scrolling:
+
+| Get started | Understand | Reference |
+|---|---|---|
+| [Prerequisites](#prerequisites) | [Why FastPix](#why-fastpix) | [What FastPix tracks](#what-fastpix-tracks) |
+| [Install the SDK](#installation) | [Built-in analytics vs FastPix](#built-in-kaltura-analytics-vs-fastpix) | [Which FastPix SDK?](#which-fastpix-sdk-for-which-android-player) |
+| [Basic integration](#basic-integration) | [What you can track](#what-you-can-track) | [FAQ](#faq) |
+| [Full example](#example-to-configure-kaltura-with-fastpix-data-sdk) | [Who it's for](#who-its-for) | [Troubleshooting](#troubleshooting) |
+
+## Why FastPix
+
+Kaltura Player fires playback events, but turning them into viewer-facing quality metrics, storing them, and watching them across devices and app versions is work you would otherwise build yourself. FastPix does it for you:
+
+- **Real-time QoE monitoring.** Startup time, rebuffering, bitrate and resolution changes, drop-offs, and errors as they happen on real devices, in one dashboard.
+- **Automatic event tracking.** The SDK listens to Kaltura Player's native events, so you keep full control of playback and add monitoring with a few lines.
+- **One data model across platforms.** The same FastPix Video Data metrics are reported from web, iOS, Android, and other player integrations, so you compare experiences like for like.
+- **Your metadata, your dashboard.** Tag views with video, player, and up to ten custom fields and analyze them in the FastPix dashboard.
+
+## Built-in Kaltura analytics vs FastPix
+
+Kaltura ships its own analytics suite (the KMC dashboards and Player Studio) for views, engagement, and media usage across Rich Media CMS, MediaSpace, and LMS platforms like Canvas. FastPix is a **third-party data SDK** you run alongside the Kaltura Player when you want:
+
+- Kaltura playback data unified with your other FastPix-monitored players (web, iOS, ExoPlayer, Media3, THEOplayer, Bitmovin, and more).
+- Developer-level QoE metrics (startup time, rebuffering, errors) with custom dimensions and your own metadata on every view.
+- One dashboard, API, and alerting surface across every platform you ship.
+
+Use Kaltura's built-in analytics, FastPix, or both - they are not mutually exclusive. Mux Data fills the same third-party role; FastPix reports the same class of QoE metrics and unifies them across your players.
+
+## What you can track
+
+- **User engagement** - detailed viewer interaction data.
+- **Playback quality** - real-time performance analysis.
+- **Delivery bottlenecks** - identify and fix video delivery issues on Android.
+- **Custom tracking** - match specific monitoring needs with custom metadata.
+- **Error reporting** - robust error diagnostics.
+- **Streaming diagnostics** - deep insight into video performance.
+
+## Who it's for
+
+- **Education and e-learning teams on Kaltura** (MediaSpace, Canvas, and other LMS integrations) who want developer-level QoE monitoring of the Android player.
+- **Enterprise and media apps shipping Kaltura Player** that need to catch rebuffering, slow startup, and playback errors before users churn.
+- **Teams standardizing analytics across platforms** who want Kaltura data in the same FastPix dashboard as their web and iOS players.
+
+## Prerequisites
+
+To track and analyze video performance, initialize the SDK with your workspace key. Learn about [Workspaces](https://fastpix.com/docs/getting-started/set-up-a-workspace).
+
+1. Access the FastPix [Dashboard](https://dashboard.fastpix.com): Log in and navigate to the Workspaces section. (Need an account first? [Create a free account](https://dashboard.fastpix.com/signup?utm_source=github&utm_medium=referral&utm_campaign=github_signup).)
+2. Locate Your Workspace Key: Copy the Workspace Key for client-side monitoring. Include this key in your Kotlin or Java code on every screen where you want to track video performance.
+3. Ensure Kaltura Player (PlayKit) is already integrated and configured in your project.
+
+## Installation
+
+Navigate to your app-level `build.gradle` file (or `build.gradle.kts` if using Kotlin DSL) and add the FastPix Data SDK dependency:
 
 ```groovy
 // FastPix Kaltura Player SDK
 implementation "io.fastpix.data:kaltura:1.0.4"
 ```
 
-Navigate to your `settings.gradle` file
+Navigate to your `settings.gradle` file and add the GitHub Packages repository:
 
 ```groovy
 dependencyResolutionManagement {
@@ -36,7 +82,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven {
-            url = uri("https://maven.pkg.github.com/FastPix/android-data-kalturaPlayer")
+            url = uri("https://maven.pkg.github.com/FastPix/android-data-kaltura")
             credentials {
                 username = "your-github-userName"
                 password = "your-PAT"
@@ -46,11 +92,9 @@ dependencyResolutionManagement {
 }
 ```
 
-3. Sync your project with Gradle files
-   Click `Sync Now` in the notification bar to download and integrate the FastPix Data SDK.
+Sync your project with Gradle files - click `Sync Now` in the notification bar to download and integrate the FastPix Data SDK.
 
-
-### Step 2: Import the SDK
+## Import the SDK
 
 Ensure kalturaPlayer is already configured in your project.
 ```kotlin
@@ -61,7 +105,7 @@ import io.fastpix.data.kaltura_player_data.src.FastPixKalturaPlayer
 ```
 
 
-### Step 3: Basic Integration
+## Basic Integration
 
 Ensure that the `workSpaceId` is provided, as it is a mandatory field for FastPix integration, uniquely identifying your workspace. Install and import `FastPixKalturaPlayer` into your project, and create an `fastPixKalturaPlayer` instance to bind it to. If you are using any other custom player then create an instance of that player.
 
@@ -102,7 +146,7 @@ You can initialize KalturaBasicPlayer with a `kalturaPlayer` in your Android app
         )
 ```
 
-### Step 4: Including custom data and metadata
+## Including custom data and metadata
 - `workSpaceId` is a mandatory parameter that tells the SDK on which workspace the data will collect.
 - `playerView` is another mandatory parameter.
 
@@ -152,7 +196,7 @@ override fun onDestroy() {
 
 After completing the integration, start playing a video in your player. A few minutes after stopping playback, you’ll see the results in your FastPix Video Data dashboard. Log in to the dashboard, navigate to the workspace associated with your ws_key, and look for video views.
 
-### CustomerData Parameters
+## CustomerData Parameters
 
 The `CustomerData` class accepts the following parameters:
 
@@ -167,7 +211,7 @@ The `CustomerData` class accepts the following parameters:
 
 
 
-### What FastPix Tracks
+## What FastPix Tracks
 Once initialized, the SDK automatically collects:
 | Category          | Examples                                  |
 | ----------------- | ----------------------------------------- |
@@ -179,7 +223,7 @@ Once initialized, the SDK automatically collects:
 | Player metadata   | fullscreen, autoplay, MIME type etc       |
 
 
-### Example to configure Kaltura with FastPix Data SDK.
+## Example to configure Kaltura with FastPix Data SDK.
 Add your Stream URL in url `"your-stream-url.m3u8"` and FastPix Workspace Key in  `workspaceId`
 ```kotlin
 class MainActivity : AppCompatActivity() {
@@ -266,34 +310,77 @@ class MainActivity : AppCompatActivity() {
 }
 
 ```
-### Debug Logging
+## Debug Logging
 Enable logs using:
 ```kotlin
 enableLogging = true
 ```
 
+## Which FastPix SDK for which Android player
+
+FastPix ships a Video Data SDK per player. Pick the one that matches the player your app ships:
+
+| Your Android player | Use this SDK |
+| --- | --- |
+| **Kaltura Player** | **FastPix/android-data-kaltura** (this repository) |
+| **AndroidX Media3** (the current ExoPlayer) | [FastPix/android-data-androidXmedia3](https://github.com/FastPix/android-data-androidXmedia3) |
+| **Google ExoPlayer** (standalone / legacy) | [FastPix/android-data-exoplayer-sdk](https://github.com/FastPix/android-data-exoplayer-sdk) |
+| **THEOplayer** | [FastPix/android-data-theoplayer](https://github.com/FastPix/android-data-theoplayer) |
+| **Bitmovin Player** | [FastPix/android-data-bitmovin](https://github.com/FastPix/android-data-bitmovin) |
+| **Brightcove Player** | [FastPix/android-data-brightcove](https://github.com/FastPix/android-data-brightcove) |
+| Any player, shared core layer | [FastPix/android-core-data-sdk](https://github.com/FastPix/android-core-data-sdk) |
+
+## FAQ
+
+**How do I monitor Kaltura Player performance on Android?**
+Add the FastPix Video Data SDK, then create a `FastPixKalturaPlayer` with your `KalturaPlayer` instance, player view, and workspace key. It automatically tracks playback events and reports real-time QoE metrics to the FastPix dashboard. See [Install the SDK](#installation) and [Basic integration](#basic-integration).
+
+**Does Kaltura have built-in analytics, and how is this different?**
+Yes - Kaltura has its own analytics (KMC dashboards and Player Studio) for views, engagement, and media usage. FastPix is a third-party data SDK you run alongside it to get developer-level QoE metrics, unify Kaltura playback data with your other players, and use one dashboard and API across platforms. See [Built-in analytics vs FastPix](#built-in-kaltura-analytics-vs-fastpix).
+
+**What metrics does it track?**
+Playback and quality-of-experience signals: play/pause/seek/buffering events, startup time, rebuffering, bitrate and resolution changes, errors, and viewer engagement, plus any custom metadata you attach. See [What FastPix tracks](#what-fastpix-tracks).
+
+**Is this a video player?**
+No. It does not play or render video. It is a monitoring SDK that attaches to the Kaltura Player you already use.
+
+**How does it compare to Mux Data for Kaltura Player?**
+Both are third-party Video Data SDKs for Kaltura Player. FastPix reports the same class of QoE metrics and unifies Kaltura data with your web, iOS, and other FastPix-monitored players in one dashboard.
+
+**Do I need a FastPix account?**
+Yes. You need a workspace key from your FastPix account to report data. [Create a free account](https://dashboard.fastpix.com/signup?utm_source=github&utm_medium=referral&utm_campaign=github_signup).
+
 ## Troubleshooting
 
-#### SDK Not Tracking Events
+### SDK Not Tracking Events
 
 - Ensure you've initialized the SDK after configuring Kaltura Player
 - Check that `workSpaceId` is correct
 - Verify Kaltura Player events are firing (check Kaltura Player logs)
 - Enable logging to see FastPix SDK activity
 
-#### Memory Leaks
+### Memory Leaks
 
 - Always call `release()` in `onDestroy()`
 - Ensure ` kalturaPlayer?.destroy()` is called before releasing FastPix SDK
 
-#### Missing Events
+### Missing Events
 
 - The SDK automatically tracks all events from Kaltura Player
 - Events are tracked based on Kaltura Player native event system
 - Check that Kaltura player is properly configured and receiving events
 
+## Documentation
 
+- [Monitor Kaltura Player - FastPix docs](https://fastpix.com/docs/video-data/monitors/kaltura-player)
+- [FastPix Video Data overview](https://fastpix.com/docs/video-data/overview)
+- [Use custom dimensions](https://fastpix.com/docs/video-data/use-custom-dimensions)
+- [Kaltura Player (PlayKit) Android docs](https://developer.kaltura.com/player/android/getting-started-android)
 
-### Support
+## Support
 📩 Email: support@fastpix.com 
 📚 Docs: https://fastpix.com/docs
+
+## License
+
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
