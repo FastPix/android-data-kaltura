@@ -12,14 +12,12 @@ It is **not a video player** and does not replace Kaltura Player. It is a third-
 
 [Monitor Kaltura Player docs](https://fastpix.com/docs/video-data/monitors/kaltura-player) · [Create a free account](https://dashboard.fastpix.com/signup?utm_source=github&utm_medium=referral&utm_campaign=github_signup)
 
-## Jump to
-
-Skip straight to a section without scrolling:
+## Contents
 
 | Get started | Understand | Reference |
 |---|---|---|
 | [Prerequisites](#prerequisites) | [Why FastPix](#why-fastpix) | [What FastPix tracks](#what-fastpix-tracks) |
-| [Install the SDK](#installation) | [Built-in analytics vs FastPix](#built-in-kaltura-analytics-vs-fastpix) | [Which FastPix SDK?](#which-fastpix-sdk-for-which-android-player) |
+| [Install the SDK](#installation) | [Built-in analytics vs FastPix](#built-in-kaltura-analytics-vs-fastpix) | [Mapping SDKs to players](#mapping-fastpix-sdks-to-android-media-players) |
 | [Set your workspace key](#set-your-fastpix-workspace-key) | [What you can track](#what-you-can-track) | [FAQ](#faq) |
 | [Basic integration](#basic-integration) | [Who it's for](#who-its-for) | [Troubleshooting](#troubleshooting) |
 | [Full example](#example-to-configure-kaltura-with-fastpix-data-sdk) | | |
@@ -259,7 +257,7 @@ The `FastPixKalturaPlayer` constructor accepts the following parameters:
 | `workspaceId`         | String            | ✅        | Your FastPix workspace key                         |
 | `videoDataDetails`    | VideoDataDetails  | ❌        | Video metadata (see below)                         |
 | `playerDataDetails`   | PlayerDataDetails | ❌        | Player information                                 |
-| `customDataDetails`   | CustomDataDetails | ❌        | Custom metadata fields (`customField1`–`customField10`) |
+| `customDataDetails`   | CustomDataDetails | ❌        | Custom metadata fields (`customField1` to `customField10`) |
 | `enableLogging`       | Boolean           | ❌        | Enable verbose SDK logging (default: `false`)      |
 
 ## What FastPix Tracks
@@ -372,7 +370,7 @@ Enable logs using:
 enableLogging = true
 ```
 
-## Which FastPix SDK for which Android player
+## Mapping FastPix SDKs to Android Media Players
 
 FastPix ships a Video Data SDK per player. Pick the one that matches the player your app ships:
 
